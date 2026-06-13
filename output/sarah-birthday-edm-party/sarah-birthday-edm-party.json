@@ -1,0 +1,22 @@
+{
+  "name": "Sarah",
+  "slug": "sarah-birthday-edm-party",
+  "language": "en",
+  "genre_variant": "birthday_edm_party_v6_restore",
+  "task_id": "1d2f29ce-181b-4baa-b93d-00cc82f11a41",
+  "prompt": "128 BPM energetic electronic dance-pop, festive birthday celebration atmosphere, heavy four-on-the-floor kick drum, bright synthesizers, crowd claps. Solo Indian female vocalist with crisp English pronunciation. The main song and vocals must start immediately at 0:02 after a short 3-2-1 countdown. High-energy electronic dance music throughout the entire track",
+  "lyrics": "[Intro]\n3! 2! 1! Go!\n\n[Verse 1]\nHappy birthday to you\nHappy birthday to you\nHappy birthday dear Sarah\nHappy birthday to you\n\n[Verse 2]\nMay your dreams all come true\nMay your days be bright and new\nMay laughter fill your heart today\nAnd happiness stay with you\n\n[Chorus]\nCelebrate and sing along\nThis is your special day\nFriends and family gathered here\nTo cheer and celebrate\n\n[Verse 3]\nWishing joy and wishing love\nWishing smiles the whole year through\nMay good fortune walk beside you\nAnd every wish come through\n\n[Chorus]\nCelebrate and sing along\nThis is your special day\nFriends and family gathered here\nTo cheer and celebrate\n\n[Verse 4]\nLet the music lift you high\nSee the sparks fly to the sky\nMake a wish and blow them out\nHear the whole crowd cheer and shout\n\n[Chorus]\nCelebrate and sing along\nThis is your special day\nFriends and family gathered here\nTo cheer and celebrate\n\n[Outro]\nHappy birthday dear Sarah\nWe celebrate with you\nHappy birthday dear Sarah\nMay all your dreams come true\n\n[End]",
+  "seed": "2664429003",
+  "duration_target_sec": 150,
+  "task_type": "text2music",
+  "cover_strength": null,
+  "reference_source": null,
+  "export": {
+    "verified": true,
+    "ai_probability": 0.01,
+    "harden_style": "distribute",
+    "upload_ready_mp3": "sarah-birthday-edm-party.mp3",
+    "exported_at": "2026-06-13T11:08:31.140551+00:00",
+    "note": "MP3 is metadata-stripped upload copy. Keep JSON local only."
+  }
+}

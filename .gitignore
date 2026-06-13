@@ -1,0 +1,27 @@
+# Job state and intermediates
+state/
+logs/
+*.verify.json
+*_raw.mp3
+*_human.mp3
+*_upload.mp3
+*_human_upload.mp3
+
+# Downloaded on first verify run (huggingface_hub)
+models/
+
+# Large reference audio — keep locally, copy from ACE-Step templates
+templates/audio/*.mp3
+templates/audio/*.wav
+templates/audio/.DS_Store
+
+# Other batch outputs (regenerated per name)
+output/**/*
+!output/sarah-birthday-edm-party/
+output/sarah-birthday-edm-party/*
+!output/sarah-birthday-edm-party/sarah-birthday-edm-party.mp3
+!output/sarah-birthday-edm-party/sarah-birthday-edm-party.json
+
+__pycache__/
+*.pyc
+.DS_Store
