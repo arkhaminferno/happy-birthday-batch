@@ -14,6 +14,8 @@ from pathlib import Path
 import numpy as np
 from scipy.io import wavfile
 
+from batch_birthday.batch_variation import MasterVariation, build_distribute_filter
+
 SAMPLE_RATE = 48000
 HUMANIZE_STYLES = ("natural", "distribute", "party")
 
@@ -144,6 +146,7 @@ def humanize_mp3(
     bpm: int = 128,
     vocal_overlay: Path | None = None,
     style: str = "distribute",
+    variation: MasterVariation | None = None,
 ) -> Path:
     """Master a batch MP3 for a more human, less synthetic listen.
 
@@ -154,6 +157,7 @@ def humanize_mp3(
         bpm: Tempo for clap placement (``party`` style only).
         vocal_overlay: Optional WAV/MP3 of live vocals to blend on top.
         style: ``distribute`` (default), ``natural``, or ``party``.
+        variation: Optional per-name mastering fingerprint (``distribute`` only).
 
     Returns:
         Path to the written humanized MP3.
@@ -167,7 +171,12 @@ def humanize_mp3(
     duration = duration_sec if duration_sec is not None else _probe_duration_sec(src)
 
     if style in ("natural", "distribute"):
-        master_af = _natural_master_af() if style == "natural" else _distribute_master_af()
+        if style == "natural":
+            master_af = _natural_master_af()
+        elif variation is not None:
+            master_af = build_distribute_filter(variation)
+        else:
+            master_af = _distribute_master_af()
         merge_label = "[0:a]"
         filter_parts: list[str] = []
         inputs = ["-i", str(src)]

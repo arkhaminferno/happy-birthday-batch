@@ -55,6 +55,44 @@ output/<slug>/
   <slug>.json   # generation sidecar (local only — do not upload to DSPs)
 ```
 
-## Reference audio (local only)
+## Mass batch (Indian names)
 
-Place optional melody guides in `templates/audio/` (not committed — large files).
+Generate many names from a text file with **unique seed + mastering fingerprint** per person
+(same template sound, different audio hash):
+
+```bash
+# Test with 3 names (API server must be running)
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday mass-batch \
+  --names batch_birthday/input/indian_names.txt --limit 3 --force
+
+# Resume a larger run
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday mass-batch \
+  --offset 10 --limit 10
+```
+
+Each output folder keeps only `<slug>.mp3` + `<slug>.json` + `<slug>.youtube.json`.
+
+Add names to `input/indian_names.txt` (one per line).
+
+Per-name variation (deterministic from name):
+
+| Parameter | Effect |
+|-----------|--------|
+| ACE-Step seed | Different generation fingerprint |
+| Micro pitch shift | ±~20 cents |
+| EQ / stereo / loudness | Unique mastering hash |
+| Outro lyrics | 1 of 6 variants per name |
+
+## CelebrateVibes brand
+
+- **Brand:** CelebrateVibes
+- **YouTube title format:** `{NAME} Happy Birthday Song – Happy Birthday to You`
+- **Website:** `website/` — static HTML for `celebratevibes.com`
+- **SEO metadata:** each mass-batch run writes `<slug>.youtube.json` with title, description, tags
+
+Deploy website to any static host (GitHub Pages, Cloudflare Pages, Netlify):
+
+```bash
+# Example: upload batch_birthday/website/ to your domain root
+```
+

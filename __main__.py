@@ -1,4 +1,4 @@
-"""Allow: python -m batch_birthday [run|scan|verify|humanize|deliver ...]"""
+"""Allow: python -m batch_birthday [run|scan|verify|humanize|deliver|mass-batch ...]"""
 
 import sys
 
@@ -30,6 +30,12 @@ def main() -> None:
 
         sys.argv = [sys.argv[0], *sys.argv[2:]]
         deliver_main()
+        return
+    if len(sys.argv) > 1 and sys.argv[1] == "mass-batch":
+        from batch_birthday.mass_batch import main as mass_batch_main
+
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        mass_batch_main()
         return
     run_main()
 

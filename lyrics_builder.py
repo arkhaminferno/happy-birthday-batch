@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+
 # Maps CSV language codes to ACE-Step vocal_language values.
 LANGUAGE_MAP: dict[str, str] = {
     "en": "en",
@@ -628,6 +630,28 @@ def _sung_traditional_hb_lines(name: str) -> str:
     )
 
 
+def _outro_variant_for_name(name: str) -> str:
+    """Pick a deterministic outro lyric block — same structure, unique fingerprint per name."""
+    clean = name.strip()
+    digest = hashlib.sha256(clean.lower().encode("utf-8")).digest()
+    idx = digest[0] % 6
+    outros = (
+        f"Happy birthday dear {clean}\nWe celebrate with you\n"
+        f"Happy birthday dear {clean}\nMay all your dreams come true",
+        f"Happy birthday dear {clean}\nTonight we dance for you\n"
+        f"Happy birthday dear {clean}\nShine bright the whole year through",
+        f"Happy birthday dear {clean}\nThe party's here for you\n"
+        f"Happy birthday dear {clean}\nMay joy surround you too",
+        f"Happy birthday dear {clean}\nWe sing this song for you\n"
+        f"Happy birthday dear {clean}\nMay blessings follow through",
+        f"Happy birthday dear {clean}\nRaise your voice and cheer\n"
+        f"Happy birthday dear {clean}\nAnother happy year",
+        f"Happy birthday dear {clean}\nWith love from everyone\n"
+        f"Happy birthday dear {clean}\nUntil the night is done",
+    )
+    return outros[idx]
+
+
 def _lyrics_birthday_edm_party_v6_restore(
     name: str,
     *,
@@ -658,10 +682,7 @@ See the sparks fly to the sky
 Make a wish and blow them out
 Hear the whole crowd cheer and shout"""
 
-    outro = f"""Happy birthday dear {name}
-We celebrate with you
-Happy birthday dear {name}
-May all your dreams come true"""
+    outro = _outro_variant_for_name(name)
 
     template = f"""[Intro]
 3! 2! 1! Go!
