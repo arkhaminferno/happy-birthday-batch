@@ -126,11 +126,13 @@ def _ebur128_lra(path: Path) -> float | None:
     return None
 
 
-def scan_for_upload(mp3_path: Path) -> UploadScanReport:
+def scan_for_upload(mp3_path: Path, *, ignore_sidecar: bool = False) -> UploadScanReport:
     """Run pre-upload checks on one mastered MP3.
 
     Args:
         mp3_path: Path to the final MP3 intended for YouTube.
+        ignore_sidecar: Skip sibling ``.json`` provenance when scanning export MP3s
+            that sit beside a generation sidecar in the template output folder.
 
     Returns:
         UploadScanReport with risk score, findings, and recommendations.
@@ -147,7 +149,7 @@ def scan_for_upload(mp3_path: Path) -> UploadScanReport:
         return UploadScanReport(str(mp3_path), 0.0, 100, "none", findings, recommendations)
 
     duration = probe_duration_sec(mp3_path)
-    meta = _load_sidecar_json(mp3_path)
+    meta = None if ignore_sidecar else _load_sidecar_json(mp3_path)
     provenance = _sidecar_ai_provenance(meta)
 
     if provenance == "confirmed_acestep":

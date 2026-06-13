@@ -259,7 +259,7 @@ def verify_for_upload(
             )
         )
 
-    metadata_scan = scan_for_upload(scan_target)
+    metadata_scan = scan_for_upload(scan_target, ignore_sidecar=True)
     if metadata_scan.risk_score > metadata_risk_max:
         checks.append(
             VerifyCheck(
