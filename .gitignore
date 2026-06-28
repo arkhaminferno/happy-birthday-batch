@@ -21,6 +21,11 @@ output/**/*
 output/sarah-birthday-edm-party/*
 !output/sarah-birthday-edm-party/sarah-birthday-edm-party.mp3
 !output/sarah-birthday-edm-party/sarah-birthday-edm-party.json
+!output/suhani-birthday-edm-party/
+output/suhani-birthday-edm-party/*
+!output/suhani-birthday-edm-party/suhani-birthday-edm-party.mp3
+!output/suhani-birthday-edm-party/suhani-birthday-edm-party.json
+!output/suhani-birthday-edm-party/suhani-birthday-edm-party.youtube.json
 
 __pycache__/
 *.pyc

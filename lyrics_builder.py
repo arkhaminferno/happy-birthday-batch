@@ -362,6 +362,14 @@ _BIRTHDAY_EDM_PARTY_V6_RESTORE_CAPTION = (
     "throughout the entire track"
 )
 
+_BIRTHDAY_EDM_PARTY_V6_RESTORE_CAPTION_HI = (
+    "128 BPM energetic electronic dance-pop, festive birthday celebration atmosphere, "
+    "heavy four-on-the-floor kick drum, bright synthesizers, crowd claps. Solo Indian female "
+    "vocalist singing in Hindi with clear natural pronunciation. The main song and vocals "
+    "must start immediately at 0:02 after a short 3-2-1 countdown. High-energy electronic "
+    "dance music throughout the entire track"
+)
+
 EDM_BIRTHDAY_GENRES = frozenset(
     {
         "birthday_edm_party_v1",
@@ -521,6 +529,7 @@ def build_lyrics(
     if genre_variant == "birthday_edm_party_v6_restore":
         return _lyrics_birthday_edm_party_v6_restore(
             name,
+            language=language,
             age=age,
             city=city,
             hobby=hobby,
@@ -606,6 +615,21 @@ def build_lyrics(
     return builder(name.strip())
 
 
+def genre_caption(genre: str, language: str = "en") -> str:
+    """Return ACE-Step caption for genre, with optional language variant."""
+    if genre == "birthday_edm_party_v6_restore" and language == "hi":
+        return _BIRTHDAY_EDM_PARTY_V6_RESTORE_CAPTION_HI
+    return GENRE_CAPTIONS.get(genre, GENRE_CAPTIONS["happy_birthday_fast"])
+
+
+def _classic_four_lines_hi(name: str) -> str:
+    """Traditional Happy Birthday lines in Hindi."""
+    return f"""जन्मदिन की शुभकामनाएँ
+जन्मदिन की शुभकामनाएँ
+जन्मदिन मुबारक हो {name}
+जन्मदिन की शुभकामनाएँ"""
+
+
 def _classic_four_lines(name: str) -> str:
     return f"""Happy birthday to you
 Happy birthday to you
@@ -652,37 +676,72 @@ def _outro_variant_for_name(name: str) -> str:
     return outros[idx]
 
 
+def _outro_variant_hi_for_name(name: str) -> str:
+    """Hindi outro variants — unique per name."""
+    clean = name.strip()
+    digest = hashlib.sha256(clean.lower().encode("utf-8")).digest()
+    idx = digest[0] % 4
+    outros = (
+        f"जन्मदिन मुबारक हो {clean}\nहम सब मिलकर गाएँ\n"
+        f"जन्मदिन मुबारक हो {clean}\nखुशियाँ हमेशा साथ रहें",
+        f"जन्मदिन मुबारक हो {clean}\nआज की रात तुम्हारी है\n"
+        f"जन्मदिन मुबारक हो {clean}\nहर दिन रोशन रहे",
+        f"जन्मदिन मुबारक हो {clean}\nप्यार भरा यह पल\n"
+        f"जन्मदिन मुबारक हो {clean}\nसपने सच हो जाएँ",
+        f"जन्मदिन मुबारक हो {clean}\nसबकी दुआएँ साथ हैं\n"
+        f"जन्मदिन मुबारक हो {clean}\nखुशियों भरा साल",
+    )
+    return outros[idx]
+
+
 def _lyrics_birthday_edm_party_v6_restore(
     name: str,
     *,
+    language: str = "en",
     age: str = "",
     city: str = "",
     hobby: str = "",
     relationship: str = "",
 ) -> str:
     """~150s EDM v6 — clean EDM backing; no melody reference (Gradio repaint for HB)."""
-    classic = _classic_four_lines(name)
-    verse2 = """May your dreams all come true
+    if language == "hi":
+        classic = _classic_four_lines_hi(name)
+        verse2 = """तुम्हारे सपने सच हों
+हर दिन नया उजियाला लाए
+आज तुम्हारे दिल में हँसी हो
+खुशियाँ तुम्हारे संग रहें"""
+        chorus = """गाओ मिलकर, जश्न मनाओ
+यह है तुम्हारा खास दिन
+परिवार और दोस्त इकट्ठे
+खुशियाँ बाँटते हैं"""
+        verse3 = """खुशियाँ और प्यार मिले
+हर पल मुस्कान भरे
+भाग्य तुम्हारे संग चले
+हर दुआ पूरी हो"""
+        verse4 = """संगीत तुम्हें ऊँचा उठाए
+चमकें सितारे आसमान में
+एक ख्वाहिश करो और मनाओ
+सब मिलकर जयकार करें"""
+        outro = _outro_variant_hi_for_name(name)
+    else:
+        classic = _classic_four_lines(name)
+        verse2 = """May your dreams all come true
 May your days be bright and new
 May laughter fill your heart today
 And happiness stay with you"""
-
-    chorus = """Celebrate and sing along
+        chorus = """Celebrate and sing along
 This is your special day
 Friends and family gathered here
 To cheer and celebrate"""
-
-    verse3 = """Wishing joy and wishing love
+        verse3 = """Wishing joy and wishing love
 Wishing smiles the whole year through
 May good fortune walk beside you
 And every wish come through"""
-
-    verse4 = """Let the music lift you high
+        verse4 = """Let the music lift you high
 See the sparks fly to the sky
 Make a wish and blow them out
 Hear the whole crowd cheer and shout"""
-
-    outro = _outro_variant_for_name(name)
+        outro = _outro_variant_for_name(name)
 
     template = f"""[Intro]
 3! 2! 1! Go!

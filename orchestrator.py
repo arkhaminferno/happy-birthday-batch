@@ -61,6 +61,7 @@ from batch_birthday.lyrics_builder import (
     EDM_BIRTHDAY_GENRES,
     NO_MELODY_REFERENCE_GENRES,
     genre_duration_sec,
+    genre_caption,
     ANTHEM_SLUG_SUFFIXES,
     build_lyrics,
     genre_time_signature,
@@ -205,7 +206,7 @@ def build_payload(
     """Build ACE-Step /release_task JSON body for one birthday song."""
     vocal_lang = LANGUAGE_MAP.get(row.language, row.language)
     genre = genre_override or row.genre_variant
-    caption = GENRE_CAPTIONS.get(genre, GENRE_CAPTIONS["happy_birthday_fast"])
+    caption = genre_caption(genre, row.language)
     bpm = row.bpm if row.bpm else FAST_BIRTHDAY_BPM
     cover_mode = use_cover
     strength = cover_strength if cover_strength is not None else TRADITIONAL_COVER_STRENGTH

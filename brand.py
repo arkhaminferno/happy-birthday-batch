@@ -7,7 +7,8 @@ BRAND_FULL = "CelebrateVibes — Happy Birthday Songs with Names"
 BRAND_TAGLINE = "Personalized happy birthday songs and videos for every name."
 BRAND_WEBSITE = "https://celebratevibes.com"
 BRAND_EMAIL = "hello@celebratevibes.com"
-BRAND_YOUTUBE_HANDLE = "@CelebrateVibesBirthday"
+BRAND_YOUTUBE_HANDLE = "@CelebrateVibesOfficial"
+BRAND_YOUTUBE_URL = "https://www.youtube.com/@CelebrateVibesOfficial"
 
 # Competitor-aligned title for name search (e.g. "PRIYA Happy Birthday Song – …").
 YOUTUBE_TITLE_SUFFIX = "Happy Birthday Song – Happy Birthday to You"
