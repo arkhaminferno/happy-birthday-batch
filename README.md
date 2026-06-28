@@ -16,14 +16,35 @@ AI-music forensic checks.
 cd /path/to/ACE-Step-1.5
 PYTHONPATH="$PWD" ./start_api_server_macos.sh   # separate terminal
 
-# 1. Edit names.csv — set name, slug, genre_variant, seed
-# 2. Generate
+# 1. Edit names.csv — set name, language, slug, genre_variant, seed
+# 2. Generate RAW only (review before humanize/upload)
 PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday --force --limit 1
 
-# 3. Harden + verify before upload
-PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday verify \
-  batch_birthday/output/<slug>/<slug>.mp3 --harden --title "Happy Birthday Name"
+# 3. After you approve the raw MP3, deliver (master + humanize + verify)
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday deliver \
+  batch_birthday/output/<slug>/<slug>_raw.mp3
 ```
+
+## Song structure rules (v6 template)
+
+| Section | Rule |
+|---------|------|
+| **[Intro]** | Always English: `3! 2! 1! Go!` |
+| **[Opening]** | Traditional HB melody **once** — performance score with explicit constraints |
+| **[Build → Drop]** | Transition into original festival EDM |
+| **Verse 2–4, Chorus, Outro** | Original melody only — English or Hindi per CSV |
+
+**Important:** Text prompts cannot guarantee the famous Happy Birthday melody. For
+100% consistency, use reference-audio cover or Gradio Repaint on the Opening (see
+`MELODY_CONDITIONED_NOTE` in `lyrics_builder.py`).
+
+## Approval workflow
+
+1. **Generate raw** — outputs `<slug>_raw.mp3` + `<slug>.json` only  
+2. **Listen & approve** — tweak lyrics in `lyrics_builder.py` if needed, regen with `--force`  
+3. **Deliver** — `python -m batch_birthday deliver …_raw.mp3` → humanize + verify + upload copy  
+
+Skip humanize/verify on first pass unless you pass `--deliver`.
 
 ## Template genre
 
@@ -43,9 +64,46 @@ Preset JSON: `templates/presets/sarah-birthday-edm-party-v6-restore.json`
 | `python -m batch_birthday` | Batch generate from `input/names.csv` |
 | `python -m batch_birthday verify <mp3> --harden` | Distribute master + full upload gate |
 | `python -m batch_birthday humanize <mp3> --style distribute` | Harden only |
-| `python -m batch_birthday scan <mp3>` | Metadata scan only |
+| `python -m batch_birthday world-batch` | Generate all countries from `input/world_names.csv` |
+| `python -m batch_birthday release-status` | Dashboard: MP3 ready + upload tracking |
+| `python -m batch_birthday release-status --sync` | Refresh local MP3 flags from `output/` |
+| `python -m batch_birthday release-status --mark youtube <slug>` | Mark one platform uploaded |
 
-## Output layout (per song)
+## Release tracking (what to follow)
+
+Track every song in **`state/release_status.csv`** (committed to git — no MP3s).
+
+| Column | Meaning |
+|--------|---------|
+| `mp3_ready` | Local upload MP3 exists in `output/<slug>/` |
+| `youtube` | Published on YouTube |
+| `instagram` | Posted Reel on Instagram |
+| `facebook` | Posted Reel on Facebook |
+| `notes` | Optional URL or release date |
+
+**Daily workflow:**
+
+```bash
+# 1. After batch or manual regen — refresh local MP3 flags
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday release-status --sync
+
+# 2. Dashboard
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday release-status
+
+# 3. See what's ready but not on YouTube yet
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday release-status --pending youtube --mp3-only
+
+# 4. After you upload Aarav to YouTube + Reels
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday release-status --mark youtube aarav-in-birthday-edm-party
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday release-status --mark instagram aarav-in-birthday-edm-party --note "2026-06-29"
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday release-status --mark facebook aarav-in-birthday-edm-party
+
+# 5. List India songs still pending Instagram
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday release-status --country India --pending instagram --list
+```
+
+Commit `state/release_status.csv` after marking uploads so your team can see progress on GitHub.
+
 
 After verify, keep only:
 

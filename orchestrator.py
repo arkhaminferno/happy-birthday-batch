@@ -24,7 +24,6 @@ from batch_birthday.ingest_reference import (
     probe_duration_sec,
     resolve_user_reference,
 )
-from batch_birthday.audio_edit import stitch_crossfade
 from batch_birthday.lyrics_builder import (
     DEFAULT_BIRTHDAY_BPM,
     FAST_BIRTHDAY_BPM,
@@ -49,6 +48,8 @@ from batch_birthday.lyrics_builder import (
     BIRTHDAY_EDM_PARTY_V3_INSTRUCTION,
     BIRTHDAY_EDM_PARTY_V4_INSTRUCTION,
     BIRTHDAY_EDM_PARTY_V5_INSTRUCTION,
+    BIRTHDAY_EDM_PARTY_V6_INSTRUCTION,
+    BIRTHDAY_EDM_PARTY_V7_INSTRUCTION,
     BIRTHDAY_EDM_MELODY_REFERENCE_STRENGTH,
     BIRTHDAY_EDM_PARTY_V4_REFERENCE_STRENGTH,
     GENRE_MELODY_REFERENCE_STRENGTH,
@@ -60,12 +61,15 @@ from batch_birthday.lyrics_builder import (
     CLASSIC_BIRTHDAY_GENRES,
     EDM_BIRTHDAY_GENRES,
     NO_MELODY_REFERENCE_GENRES,
+    CELEBRATEVIBES_V2_GENRES,
     genre_duration_sec,
     genre_caption,
     ANTHEM_SLUG_SUFFIXES,
     build_lyrics,
     genre_time_signature,
 )
+from batch_birthday.audio_merge import crossfade_merge as stitch_crossfade
+from batch_birthday.pipeline_v2 import process_row_v2
 from batch_birthday.video_render import master_mp3, master_mp3_vocal_forward, render_video
 from batch_birthday.humanize_audio import humanize_mp3
 from batch_birthday.upload_scan import (
@@ -142,6 +146,9 @@ class BirthdayRow:
     hobby: str = ""
     relationship: str = ""
     seed: str = ""
+    country: str = ""
+    gender: str = ""
+    pronunciation: str = ""
 
 
 def resolve_slug(name: str, slug: str, genre_variant: str) -> str:
@@ -183,6 +190,9 @@ def load_csv(path: Path) -> list[BirthdayRow]:
                     hobby=(item.get("hobby") or "").strip(),
                     relationship=(item.get("relationship") or "").strip(),
                     seed=(item.get("seed") or "").strip(),
+                    country=(item.get("country") or "").strip(),
+                    gender=(item.get("gender") or "").strip(),
+                    pronunciation=(item.get("pronunciation") or "").strip(),
                 )
             )
     return rows
@@ -251,7 +261,11 @@ def build_payload(
     if row.seed:
         payload["use_random_seed"] = False
         payload["seed"] = row.seed
-    if genre == "birthday_edm_party_v5" and not instruction:
+    if genre == "birthday_edm_party_v7" and not instruction:
+        payload["instruction"] = BIRTHDAY_EDM_PARTY_V7_INSTRUCTION
+    elif genre == "birthday_edm_party_v6_restore" and not instruction:
+        payload["instruction"] = BIRTHDAY_EDM_PARTY_V6_INSTRUCTION
+    elif genre == "birthday_edm_party_v5" and not instruction:
         payload["instruction"] = BIRTHDAY_EDM_PARTY_V5_INSTRUCTION
     elif genre == "birthday_edm_party_v4" and not instruction:
         payload["instruction"] = BIRTHDAY_EDM_PARTY_V4_INSTRUCTION
@@ -466,6 +480,8 @@ def process_row(
     reference_src: Path | None = None,
     reference_strength: float | None = None,
     vocal_forward_master: bool = False,
+    raw_only: bool = True,
+    with_master: bool = False,
     humanize: bool = False,
     scan_upload: bool = False,
     vocal_overlay: Path | None = None,
@@ -473,12 +489,17 @@ def process_row(
     """Generate one birthday song and optional video for a CSV row."""
     out_dir = output_root / row.slug
     out_dir.mkdir(parents=True, exist_ok=True)
+    raw_mp3 = out_dir / f"{row.slug}_raw.mp3"
     final_mp3 = out_dir / f"{row.slug}.mp3"
     out_mp4 = out_dir / f"{row.slug}.mp4"
 
-    if not force and final_mp3.exists() and final_mp3.stat().st_size > 0:
-        print(f"SKIP (exists): {final_mp3}")
-        return final_mp3
+    if not force:
+        if raw_only and raw_mp3.exists() and raw_mp3.stat().st_size > 0:
+            print(f"SKIP (raw exists): {raw_mp3}")
+            return raw_mp3
+        if not raw_only and final_mp3.exists() and final_mp3.stat().st_size > 0:
+            print(f"SKIP (exists): {final_mp3}")
+            return final_mp3
 
     print(f"SUBMIT: {row.name} ({row.language}) → {row.slug}")
     cover_mode = use_cover
@@ -510,10 +531,13 @@ def process_row(
 
     raw_mp3 = out_dir / f"{row.slug}_raw.mp3"
     download_audio(api_base, tracks[0]["file"], str(raw_mp3), api_key)
-    if vocal_forward_master:
-        master_mp3_vocal_forward(raw_mp3, final_mp3)
-    else:
-        master_mp3(raw_mp3, final_mp3)
+    deliverable = raw_mp3
+    if with_master or not raw_only:
+        if vocal_forward_master:
+            master_mp3_vocal_forward(raw_mp3, final_mp3)
+        else:
+            master_mp3(raw_mp3, final_mp3)
+        deliverable = final_mp3
 
     meta = {
         "name": row.name,
@@ -528,27 +552,37 @@ def process_row(
         "task_type": "cover" if cover_mode else "text2music",
         "cover_strength": cover_strength if cover_mode else reference_strength,
         "reference_source": str(cover_src or reference_src) if (cover_src or reference_src) else None,
+        "approval_status": "pending" if raw_only and not humanize else "delivered",
+        "raw_mp3": str(raw_mp3),
     }
     (out_dir / f"{row.slug}.json").write_text(
         json.dumps(meta, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
 
-    if not skip_video:
+    if not skip_video and deliverable == final_mp3:
         render_video(final_mp3, row.name, out_mp4, AUDIO_DURATION_SEC, video_bg)
         print(f"VIDEO: {out_mp4}")
 
     append_state(state_file, {"slug": row.slug, "task_id": task_id, "status": "done"})
+    if raw_only and not humanize and not scan_upload:
+        print(f"RAW READY: {raw_mp3}")
+        print(
+            "Review the raw MP3 first. After approval run:\n"
+            f"  python -m batch_birthday deliver {raw_mp3}"
+        )
+        return raw_mp3
+
     post_process_delivery(
-        final_mp3,
+        deliverable,
         row,
         duration_sec,
         humanize=humanize,
         scan_upload=scan_upload,
         vocal_overlay=vocal_overlay,
     )
-    print(f"DONE: {final_mp3}")
-    return final_mp3
+    print(f"DONE: {deliverable}")
+    return deliverable
 
 
 def main() -> None:
@@ -608,9 +642,19 @@ def main() -> None:
     )
     parser.add_argument("--video-bg", type=Path, default=None)
     parser.add_argument(
+        "--with-master",
+        action="store_true",
+        help="Also write light-mastered <slug>.mp3 (default: keep ACE-Step raw only)",
+    )
+    parser.add_argument(
+        "--deliver",
+        action="store_true",
+        help="After generate, run master + humanize + upload scan (skip for raw review)",
+    )
+    parser.add_argument(
         "--humanize",
         action="store_true",
-        help="Layer room tone + claps and warm master after generation",
+        help="Humanize after generation (usually run via deliver after raw approval)",
     )
     parser.add_argument(
         "--scan-upload",
@@ -643,7 +687,25 @@ def main() -> None:
         ensure_llm_ready(args.api_base, args.api_key)
 
     skip_video = not args.with_video
+    deliver_now = args.deliver or args.humanize or args.scan_upload
     for row in rows:
+        if row.genre_variant in CELEBRATEVIBES_V2_GENRES:
+            process_row_v2(
+                row,
+                api_base=args.api_base,
+                api_key=args.api_key,
+                output_root=args.output,
+                state_file=state_file,
+                force=args.force,
+                raw_only=not deliver_now,
+                humanize=args.humanize or args.deliver,
+                scan_upload=args.scan_upload or args.deliver,
+                vocal_overlay=args.vocal_overlay,
+                append_state_fn=append_state,
+                post_process_fn=post_process_delivery,
+            )
+            continue
+
         if row.genre_variant == "party_dance" and use_hybrid_default and not args.cover:
             process_row_hybrid(
                 row,
@@ -743,8 +805,10 @@ def main() -> None:
             reference_strength=reference_strength,
             vocal_forward_master=row.genre_variant in VOCAL_FORWARD_BIRTHDAY_GENRES
                 or row.genre_variant == "song_guitar_cover",
-            humanize=args.humanize,
-            scan_upload=args.scan_upload,
+            raw_only=not deliver_now,
+            with_master=args.with_master or deliver_now,
+            humanize=args.humanize or args.deliver,
+            scan_upload=args.scan_upload or args.deliver,
             vocal_overlay=args.vocal_overlay,
         )
 

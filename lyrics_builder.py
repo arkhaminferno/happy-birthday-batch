@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import hashlib
 
+from batch_birthday.hindi_party_lyrics import build_hindi_body_lyrics
+from batch_birthday.native_party_lyrics import build_native_body_lyrics
+from batch_birthday.name_pronunciation import resolve_pronunciation
+
 # Maps CSV language codes to ACE-Step vocal_language values.
 LANGUAGE_MAP: dict[str, str] = {
     "en": "en",
@@ -36,7 +40,9 @@ GENRE_DURATION_SEC: dict[str, int] = {
     "birthday_edm_party_v3": 150,
     "birthday_edm_party_v4": 150,
     "birthday_edm_party_v5": 150,
-    "birthday_edm_party_v6_restore": 150,
+    "birthday_edm_party_v6_restore": 165,
+    "birthday_edm_party_v7": 165,
+    "celebratevibes_v2": 165,
     "birthday_restaurant_party_v1": 180,
     "birthday_classic_extended": 240,
 }
@@ -54,6 +60,8 @@ ANTHEM_SLUG_SUFFIXES: dict[str, str] = {
     "birthday_edm_party_v4": "birthday-edm-party",
     "birthday_edm_party_v5": "birthday-edm-party",
     "birthday_edm_party_v6_restore": "birthday-edm-party",
+    "birthday_edm_party_v7": "birthday-edm-party",
+    "celebratevibes_v2": "birthday-edm-party",
 }
 
 # Per-genre time signature (dance/party = 4/4).
@@ -73,6 +81,8 @@ GENRE_TIME_SIGNATURE: dict[str, str] = {
     "birthday_edm_party_v4": "4",
     "birthday_edm_party_v5": "4",
     "birthday_edm_party_v6_restore": "4",
+    "birthday_edm_party_v7": "4",
+    "celebratevibes_v2": "4",
     "happy_birthday_fast": "3",
     "user_template_cover": "3",
 }
@@ -353,22 +363,154 @@ BIRTHDAY_EDM_PARTY_V5_INSTRUCTION = (
     "Pronounce the birthday name clearly. Follow clean lyric sections in order."
 )
 
-# v6: pure text2music EDM — no global melody reference (Verse 1 tuned via Gradio repaint).
-_BIRTHDAY_EDM_PARTY_V6_RESTORE_CAPTION = (
+# Fixed English countdown — never localized.
+INTRO_COUNTDOWN_EN = "3! 2! 1! Go!"
+
+CELEBRATEVIBES_V2_INTRO_CAPTION = (
     "128 BPM energetic electronic dance-pop, festive birthday celebration atmosphere, "
-    "heavy four-on-the-floor kick drum, bright synthesizers, crowd claps. Solo Indian female "
-    "vocalist with crisp English pronunciation. The main song and vocals must start "
-    "immediately at 0:02 after a short 3-2-1 countdown. High-energy electronic dance music "
-    "throughout the entire track"
+    "heavy four-on-the-floor kick drum, bright synthesizers, crowd claps. Solo Indian "
+    "female vocalist with crisp English pronunciation singing a short festival countdown. "
+    "The vocalist must sing 3, 2, 1, Go on the beat — NOT spoken robotically. High-energy "
+    "electronic dance music throughout. NOT ballad, NOT slow"
+)
+
+CELEBRATEVIBES_V2_INTRO_INSTRUCTION = (
+    "Sing the countdown on beat over a steady EDM kick: 3! 2! 1! Go! One count per "
+    "downbeat at 128 BPM. Bright female party vocal, not monotone TTS. Keep only the "
+    "countdown section — no Happy Birthday melody yet. Follow the Intro lyrics exactly."
+)
+
+# v6: performance-score prompting — text-only HB is best-effort; see MELODY_CONDITIONED_NOTE.
+MELODY_CONDITIONED_NOTE = (
+    "For guaranteed traditional Happy Birthday melody, use reference-audio cover or "
+    "Gradio Repaint on the Opening section — text prompts alone cannot lock famous melodies."
+)
+
+_BIRTHDAY_EDM_PARTY_V6_RESTORE_CAPTION = (
+    "High-energy 128 BPM festival EDM anthem. The song opens with the traditional global "
+    "Happy Birthday to You melody sung exactly once by a bright Indian female lead while "
+    "the instrumental already plays an uplifting four-on-the-floor EDM groove. Do NOT "
+    "improvise the opening melody. No alternate tune. No melodic variation on the opening. "
+    "Immediately after the final line, drum fill and riser, then explode into an original "
+    "festival EDM drop. Only the opening birthday verse uses the familiar worldwide melody. "
+    "Everything after the drop is entirely original — catchy hooks, energetic synths, "
+    "uplifting festival vibes. English countdown at 0:02. NOT ballad, NOT slow"
 )
 
 _BIRTHDAY_EDM_PARTY_V6_RESTORE_CAPTION_HI = (
-    "128 BPM energetic electronic dance-pop, festive birthday celebration atmosphere, "
-    "heavy four-on-the-floor kick drum, bright synthesizers, crowd claps. Solo Indian female "
-    "vocalist singing in Hindi with clear natural pronunciation. The main song and vocals "
-    "must start immediately at 0:02 after a short 3-2-1 countdown. High-energy electronic "
-    "dance music throughout the entire track"
+    "High-energy 128 BPM festival EDM anthem. English countdown intro. Opening: traditional "
+    "global Happy Birthday to You melody sung exactly once in English with the name — bright "
+    "Indian female lead, steady EDM kick underneath, crowd claps on beats 2 and 4. Do NOT "
+    "invent a new melody for the opening. No improvisation. After the final line, drum riser "
+    "into massive festival drop. Verse 2 onward: completely original melody and Hindi lyrics, "
+    "NOT Happy Birthday tune. Outro: emotional layered chorus with EDM elements"
 )
+
+BIRTHDAY_EDM_PARTY_V6_INSTRUCTION = (
+    "ACT 1 — OPENING (~20 seconds): universally recognizable birthday sing-along. Sound like "
+    "a crowd singing the classic Happy Birthday melody over modern four-on-the-floor EDM. "
+    "Sing the traditional four lines exactly once. No melodic variation. No improvisation. "
+    "No vocal riffs. No melisma. No harmony changes on the opening. Pronounce the name clearly. "
+    "ACT 2 — TRANSITION: after the final 'Happy birthday to you', drum fill and riser into a "
+    "massive festival EDM drop. ACT 3 — ORIGINAL SONG: everything after the drop is brand-new "
+    "melody and lyrics only. Catchy festival hooks. NOT Happy Birthday tune. Outro: emotional "
+    "final chorus with layered vocals."
+)
+
+_BIRTHDAY_EDM_PARTY_V7_CAPTION = (
+    "Professional commercial 128 BPM festival EDM birthday anthem. Open immediately with a "
+    "strong four-on-the-floor EDM groove. First vocal: classic worldwide Happy Birthday "
+    "sing-along sung exactly once — simple, clean, memorable. No vocal runs, freestyle, rap, "
+    "spoken words or ad-libs on the opening. Short drum riser after the final line, then "
+    "explode into a huge emotional festival drop — big supersaws, wide stereo synths, punchy "
+    "kick, powerful bass, Tomorrowland commercial dance-pop energy. From the drop onward: "
+    "entirely original melody and supplied lyrics only. Radio-ready, YouTube-ready, uplifting "
+    "major-key finish. NOT ballad, NOT slow"
+)
+
+_BIRTHDAY_EDM_PARTY_V7_CAPTION_HI = (
+    "Professional commercial 128 BPM festival EDM birthday anthem. Strong EDM groove from "
+    "beat one. Opening vocal: classic worldwide Happy Birthday in English with the name — "
+    "exactly one verse, simple and clean. No ad-libs or spoken words on opening. Drum riser "
+    "into massive festival drop. Verse 2 onward: original melody with Hindi lyrics. Emotional "
+    "final chorus with name. Commercial radio-ready mix"
+)
+
+BIRTHDAY_EDM_PARTY_V7_INSTRUCTION = (
+    "You are producing a professional commercial birthday song. The song must feel like a "
+    "modern international EDM festival anthem while remaining emotional, joyful and easy for "
+    "everyone to sing. ACT 1 — Birthday Sing-Along: Open immediately with a strong EDM groove. "
+    "The very first vocal section is the classic worldwide birthday sing-along. The singer "
+    "performs only one complete Happy Birthday verse before any original composition begins. "
+    "Keep this opening simple, clean and memorable. No vocal runs. No freestyle. No rap. No "
+    "spoken words. No ad-libs. No melodic variations during the opening birthday verse. The "
+    "rhythm should remain natural while fitting the EDM beat. Immediately after the final "
+    "Happy Birthday to you, begin a short drum riser. ACT 2 — Festival Drop: After the riser, "
+    "explode into a huge emotional festival EDM drop. Big supersaws. Wide stereo synths. "
+    "Punchy kick. Powerful bass. Bright uplifting energy. This drop should feel like "
+    "Tomorrowland, Ultra Music Festival and modern commercial dance-pop. ACT 3 — Original "
+    "Birthday Song: From this point onward, compose an entirely original melody. Never reuse "
+    "the birthday melody again. Continue with the supplied Hindi verses and chorus. The chorus "
+    "should be catchy, energetic and easy for friends and family to sing together. Alternate "
+    "naturally between verses, chorus and instrumental fills. ENDING: Finish with an emotional "
+    "final chorus. Repeat the person's name naturally. End on a strong uplifting major chord "
+    "with festival energy. The overall production should sound polished, commercial, "
+    "radio-ready and suitable for YouTube birthday videos."
+)
+
+CELEBRATEVIBES_V2_VERSE1_COVER_CAPTION = (
+    "Traditional worldwide Happy Birthday to You melody, bright female lead, clean party "
+    "sing-along, light hand claps, warm commercial studio mix. Preserve the exact source "
+    "melody and rhythm. Only the name changes."
+)
+
+CELEBRATEVIBES_V2_VERSE1_COVER_INSTRUCTION = (
+    "Cover the deterministic source stem. Keep the exact traditional Happy Birthday melody "
+    "and phrasing from the source. Sing the supplied lyrics to that same tune. Vocals must "
+    "start immediately at second zero — no instrumental intro. Only the name changes. "
+    "Pronounce the birthday name exactly as instructed. No ad-libs. No spoken words."
+)
+
+CELEBRATEVIBES_V2_BODY_CAPTION = (
+    "128 BPM festival EDM birthday party anthem continuation after Happy Birthday, pumping "
+    "sidechain bass, bright supersaw drop, crowd hey-hey chants, commercial dance-pop, "
+    "catchy English singalong chorus with the name, NOT the traditional Happy Birthday melody, "
+    "radio-ready YouTube birthday song"
+)
+
+CELEBRATEVIBES_V2_FULL_CAPTION = (
+    "Professional commercial 128 BPM festival EDM birthday anthem. Four-on-the-floor kick drum "
+    "and bright synths from beat one. Open with a short 2-3 second instrumental party hook — "
+    "no vocals, no countdown. Then one classic Happy Birthday verse sung over the dance beat. "
+    "Then original festival EDM party lyrics driven by the beat throughout. "
+    "NOT ballad, NOT slow, NOT waltz, NOT spoken countdown"
+)
+
+CELEBRATEVIBES_V2_BODY_INSTRUCTION = (
+    "This is the party section AFTER the traditional Happy Birthday verse. Explode into a "
+    "huge festival EDM drop. Use an entirely original melody; never use the traditional "
+    "Happy Birthday to You tune here. Keep words simple and birthday-specific. Repeat the "
+    "person's name in the chorus with correct pronunciation. No long instrumental buildup "
+    "before vocals — party vocals within the first 4 seconds of this section."
+)
+
+CELEBRATEVIBES_V2_FULL_INSTRUCTION = (
+    "Single-pass festival EDM birthday song. NO countdown. NO spoken 3-2-1-Go. NO separate "
+    "instrumental buildup longer than 3 seconds. Structure: (1) Beat starts immediately — "
+    "2-3 second instrumental EDM intro hook only, no vocals. (2) One complete traditional "
+    "Happy Birthday verse sung over the four-on-the-floor beat — classic worldwide melody, "
+    "no improvisation, no ad-libs. (3) Short drum riser then festival drop into original "
+    "party lyrics — entirely new melody, beat-driven throughout. Pronounce the birthday name "
+    "clearly on every Happy Birthday line and in the chorus."
+)
+
+# Legacy aliases kept for tests / older imports.
+CELEBRATEVIBES_V2_VOCAL_CAPTION = CELEBRATEVIBES_V2_VERSE1_COVER_CAPTION
+CELEBRATEVIBES_V2_VOCAL_INSTRUCTION = CELEBRATEVIBES_V2_VERSE1_COVER_INSTRUCTION
+CELEBRATEVIBES_V2_EDM_COVER_CAPTION = CELEBRATEVIBES_V2_VERSE1_COVER_CAPTION
+CELEBRATEVIBES_V2_EDM_COVER_INSTRUCTION = CELEBRATEVIBES_V2_VERSE1_COVER_INSTRUCTION
+
+CELEBRATEVIBES_V2_GENRES = frozenset({"celebratevibes_v2"})
 
 EDM_BIRTHDAY_GENRES = frozenset(
     {
@@ -378,11 +520,14 @@ EDM_BIRTHDAY_GENRES = frozenset(
         "birthday_edm_party_v4",
         "birthday_edm_party_v5",
         "birthday_edm_party_v6_restore",
+        "birthday_edm_party_v7",
     }
 )
 
 # Pure text2music — never attach global reference_audio or user template.
-NO_MELODY_REFERENCE_GENRES = frozenset({"birthday_edm_party_v6_restore"})
+NO_MELODY_REFERENCE_GENRES = frozenset(
+    {"birthday_edm_party_v6_restore", "birthday_edm_party_v7", "celebratevibes_v2"}
+)
 MELODY_FIRST_BIRTHDAY_GENRES = BIRTHDAY_ANTHEM_GENRES | CLASSIC_BIRTHDAY_GENRES
 VOCAL_FORWARD_BIRTHDAY_GENRES = MELODY_FIRST_BIRTHDAY_GENRES | EDM_BIRTHDAY_GENRES
 
@@ -403,6 +548,8 @@ GENRE_CAPTIONS: dict[str, str] = {
     "birthday_edm_party_v4": _BIRTHDAY_EDM_PARTY_V4_CAPTION,
     "birthday_edm_party_v5": _BIRTHDAY_EDM_PARTY_V5_CAPTION,
     "birthday_edm_party_v6_restore": _BIRTHDAY_EDM_PARTY_V6_RESTORE_CAPTION,
+    "birthday_edm_party_v7": _BIRTHDAY_EDM_PARTY_V7_CAPTION,
+    "celebratevibes_v2": CELEBRATEVIBES_V2_BODY_CAPTION,
     "user_template_cover": (
         f"Happy Birthday to You song like the reference recording, traditional birthday melody, "
         f"{_DUET_VOCAL_HINT}, piano, hand claps, festive party, professional studio mix, "
@@ -512,6 +659,7 @@ def build_lyrics(
     *,
     genre_variant: str = "happy_birthday_fast",
     section: str | None = None,
+    country: str = "",
     age: str = "",
     city: str = "",
     hobby: str = "",
@@ -535,6 +683,17 @@ def build_lyrics(
             hobby=hobby,
             relationship=relationship,
         )
+    if genre_variant == "birthday_edm_party_v7":
+        return _lyrics_birthday_edm_party_v7(
+            name,
+            language=language,
+            age=age,
+            city=city,
+            hobby=hobby,
+            relationship=relationship,
+        )
+    if genre_variant == "celebratevibes_v2":
+        return build_full_song_lyrics(name, language, variant=0, country=country)
     if genre_variant == "birthday_edm_party_v4":
         return _lyrics_birthday_edm_party_v4(
             name,
@@ -619,6 +778,15 @@ def genre_caption(genre: str, language: str = "en") -> str:
     """Return ACE-Step caption for genre, with optional language variant."""
     if genre == "birthday_edm_party_v6_restore" and language == "hi":
         return _BIRTHDAY_EDM_PARTY_V6_RESTORE_CAPTION_HI
+    if genre == "birthday_edm_party_v7" and language == "hi":
+        return _BIRTHDAY_EDM_PARTY_V7_CAPTION_HI
+    if genre == "celebratevibes_v2" and language == "hi":
+        return (
+            f"{CELEBRATEVIBES_V2_FULL_CAPTION} "
+            "Verse 1 uses fixed English Happy Birthday melody; body uses English party hooks."
+        )
+    if genre == "celebratevibes_v2":
+        return CELEBRATEVIBES_V2_FULL_CAPTION
     return GENRE_CAPTIONS.get(genre, GENRE_CAPTIONS["happy_birthday_fast"])
 
 
@@ -635,6 +803,193 @@ def _classic_four_lines(name: str) -> str:
 Happy birthday to you
 Happy birthday dear {name}
 Happy birthday to you"""
+
+
+def build_intro_lyrics() -> str:
+    """Countdown intro — one line per count for tight timing."""
+    return "[Intro]\n3!\n2!\n1!\nGo!"
+
+
+def build_verse1_lyrics(name: str) -> str:
+    """Verse 1 vocal lyrics — pure traditional Happy Birthday (name personalized)."""
+    classic = _classic_four_lines(name.strip())
+    return f"[Verse 1]\n{classic}"
+
+
+def build_verse1_intro_lyrics(name: str) -> str:
+    """Full opening section lyrics (intro + verse1) for sidecar documentation."""
+    return f"{build_intro_lyrics()}\n\n{build_verse1_lyrics(name)}"
+
+
+def build_full_song_lyrics(
+    name: str,
+    language: str = "en",
+    *,
+    variant: int = 0,
+    country: str = "",
+) -> str:
+    """Single-pass EDM song: short intro tune → Happy Birthday → party body."""
+    clean = name.strip()
+    classic = _classic_four_lines(clean)
+    if country.strip().lower() in ("india", "russia", "china"):
+        pron = resolve_pronunciation(clean, country)
+        body = build_native_body_lyrics(
+            clean,
+            country,
+            variant=variant,
+            native_name=pron.native_script,
+            language=language,
+        )
+    else:
+        body = build_body_lyrics(clean, language, variant=variant)
+    intro = "[Intro]\n[Instrumental]"
+    verse1 = f"[Verse 1]\n{classic}"
+    build = "[Build]\n[Instrumental]"
+    drop = "[Drop]\n[Instrumental]"
+    return f"{intro}\n\n{verse1}\n\n{build}\n\n{drop}\n\n{body}"
+
+
+def build_body_lyrics(name: str, language: str = "en", *, variant: int = 0) -> str:
+    """Festival EDM party body — English hooks with rotating templates."""
+    clean = name.strip()
+    variant = variant % 4
+
+    if variant == 0:
+        verse2 = f"""Everybody jump, the lights go wild
+{clean}, you're the star tonight
+Candles glow and friends all smile
+We dance until the morning light"""
+        chorus = f"""Happy birthday {clean}, put your hands up high
+Happy birthday {clean}, touch the sky
+Hey! Hey! Happy birthday {clean}
+Let's party all night"""
+        verse3 = f"""Make a wish and blow the flame
+{clean}, hear us call your name
+Laughing, singing, hearts on fire
+This is your moment, take it higher"""
+        verse4 = f"""One more time now, all together
+Louder, louder, feel the beat
+{clean}, we celebrate you
+Dancing down the city street"""
+    elif variant == 1:
+        verse2 = f"""DJ drop the beat, the crowd goes wild
+{clean}, you're shining bright tonight
+Neon lights and happy smiles
+We party till the morning light"""
+        chorus = f"""Happy birthday {clean}, hands up to the sky
+Happy birthday {clean}, let the good times fly
+Hey! Hey! Happy birthday {clean}
+Dance with me tonight"""
+        verse3 = f"""Blow the candles, make it count
+{clean}, hear the music loud
+Singing, jumping, feeling free
+This night belongs to you and me"""
+        verse4 = f"""Turn it up and sing along
+Feel the bass and move your feet
+{clean}, this is your birthday song
+Dancing down the city street"""
+    elif variant == 2:
+        verse2 = f"""Spotlight on you, the room ignites
+{clean}, you're the hero of the night
+Friends around and joy so bright
+We rave until the morning light"""
+        chorus = f"""Happy birthday {clean}, jump into the sky
+Happy birthday {clean}, let the sparks fly high
+Hey! Hey! Happy birthday {clean}
+Party all night long"""
+        verse3 = f"""Wish upon the candle glow
+{clean}, let the whole world know
+Singing loud with hearts on fire
+Take your dreams a little higher"""
+        verse4 = f"""Hands up high and sing out strong
+Feel the rhythm in your feet
+{clean}, we cheer you all night long
+Grooving down the city street"""
+    else:
+        verse2 = f"""Festival lights and bass so loud
+{clean}, you're the star of the crowd
+Smiles and cheers from every side
+We dance with festival pride"""
+        chorus = f"""Happy birthday {clean}, reach up to the sky
+Happy birthday {clean}, let the moment fly
+Hey! Hey! Happy birthday {clean}
+Celebrate tonight"""
+        verse3 = f"""Make a wish and feel the flame
+{clean}, we shout your name
+Laughing loud with hearts on fire
+This is your hour, take it higher"""
+        verse4 = f"""One more chorus, all as one
+Louder now and feel the heat
+{clean}, your party has begun
+Moving down the city street"""
+
+    outro = f"""Happy birthday {clean}
+Happy birthday {clean}
+We love you, never stop the cheer
+Happy birthday {clean}"""
+
+    return f"""[Verse 2]
+{verse2}
+
+[Chorus]
+{chorus}
+
+[Verse 3]
+{verse3}
+
+[Chorus]
+{chorus}
+
+[Verse 4]
+{verse4}
+
+[Chorus]
+{chorus}
+
+[Outro]
+{outro}"""
+
+
+def _opening_traditional_hb_performance_score(name: str) -> str:
+    """Opening performance score — single classic HB refrain with explicit constraints."""
+    classic = _classic_four_lines(name)
+    return f"""[Opening - Traditional Happy Birthday Melody]
+
+Tempo: 128 BPM. Festival EDM instrumental begins immediately — steady four-on-the-floor kick.
+
+Performance:
+- Bright female lead vocal.
+- The opening MUST be performed exactly like the traditional worldwide Happy Birthday song
+  that children sing at birthday parties.
+- Do NOT invent a new melody. Do NOT improvise. Do NOT use an alternate tune.
+- Follow the classic four-line birthday melody before transitioning into original EDM.
+- Children's choir joins softly on line 3 (name line).
+- Crowd claps on beats 2 and 4.
+- No vocal riffs. No melisma. No harmony changes on the opening.
+- Maintain the familiar rhythm and phrasing used at birthday celebrations worldwide.
+- Classic birthday melody sung exactly once — then transition to original composition.
+
+Lyrics:
+{classic}"""
+
+
+def _opening_v7_birthday_singalong(name: str) -> str:
+    """ACT 1 opening — one classic HB verse over immediate EDM groove."""
+    classic = _classic_four_lines(name)
+    return f"""[ACT 1 - Birthday Sing-Along]
+
+Tempo: 128 BPM. Strong four-on-the-floor EDM groove starts immediately.
+
+Performance:
+- Bright lead vocal.
+- Sing one complete classic worldwide Happy Birthday verse.
+- Simple, clean, memorable.
+- No vocal runs. No freestyle. No rap. No spoken words. No ad-libs.
+- No melodic variations during the opening birthday verse.
+- Natural rhythm fitting the EDM beat. Pronounce the name clearly.
+
+Lyrics:
+{classic}"""
 
 
 def _hb_refrain_block(name: str, tag: str) -> str:
@@ -703,9 +1058,37 @@ def _lyrics_birthday_edm_party_v6_restore(
     hobby: str = "",
     relationship: str = "",
 ) -> str:
-    """~150s EDM v6 — clean EDM backing; no melody reference (Gradio repaint for HB)."""
+    """~165s EDM v6 — performance-score opening, drop, original festival body."""
+    opening = _opening_traditional_hb_performance_score(name)
+    build = (
+        "[Build - Transition After Opening]\n"
+        "After the final 'Happy birthday to you', begin a drum fill and riser.\n"
+        "Rising tension. Energy lift. No new lyrics. Crowd hype: Hey! Hey! Here we go!"
+    )
+    drop = (
+        "[Drop - Massive Festival EDM Drop]\n"
+        "Explode into original festival EDM. Heavy kick and bass. Bright synths.\n"
+        "Instrumental burst. Confetti energy. From here onward: entirely original melody."
+    )
+    verse2_tag = (
+        "[Verse 2 - Original Festival Composition]\n"
+        "Completely original melody and lyrics. Do NOT use Happy Birthday to You tune.\n"
+        "Festival dance-pop vocal. Celebrating the birthday."
+    )
+    verse3_tag = (
+        "[Verse 3 - Original Festival Composition]\n"
+        "New original melody. Do NOT return to traditional birthday tune."
+    )
+    verse4_tag = (
+        "[Verse 4 - Original Festival Composition]\n"
+        "New original melody. Peak party energy before final chorus."
+    )
+    chorus_tag = (
+        "[Chorus - Original Festival Hook]\n"
+        "Catchy original festival melody. Energetic synths. Uplifting singalong.\n"
+        "Do NOT use Happy Birthday to You tune. Do NOT improvise traditional melody."
+    )
     if language == "hi":
-        classic = _classic_four_lines_hi(name)
         verse2 = """तुम्हारे सपने सच हों
 हर दिन नया उजियाला लाए
 आज तुम्हारे दिल में हँसी हो
@@ -724,7 +1107,6 @@ def _lyrics_birthday_edm_party_v6_restore(
 सब मिलकर जयकार करें"""
         outro = _outro_variant_hi_for_name(name)
     else:
-        classic = _classic_four_lines(name)
         verse2 = """May your dreams all come true
 May your days be bright and new
 May laughter fill your heart today
@@ -743,31 +1125,159 @@ Make a wish and blow them out
 Hear the whole crowd cheer and shout"""
         outro = _outro_variant_for_name(name)
 
-    template = f"""[Intro]
-3! 2! 1! Go!
+    template = f"""[Intro - English Countdown]
+Tempo: 128 BPM. Festival EDM groove starts under countdown.
+{INTRO_COUNTDOWN_EN}
 
-[Verse 1]
-{classic}
+{opening}
 
-[Verse 2]
+{build}
+
+{drop}
+
+{verse2_tag}
 {verse2}
 
-[Chorus]
+{chorus_tag}
 {chorus}
 
-[Verse 3]
+{verse3_tag}
 {verse3}
 
-[Chorus]
+{chorus_tag}
 {chorus}
 
-[Verse 4]
+{verse4_tag}
 {verse4}
 
-[Chorus]
+{chorus_tag}
 {chorus}
 
-[Outro]
+[Outro - Emotional Final Chorus]
+Layered vocals. Harmonies. EDM elements. Original festival melody only.
+{chorus_tag}
+{chorus}
+
+{outro}
+
+[End]"""
+    return apply_personalization(
+        template,
+        name=name,
+        age=age,
+        city=city,
+        hobby=hobby,
+        relationship=relationship,
+    )
+
+
+def _lyrics_birthday_edm_party_v7(
+    name: str,
+    *,
+    language: str = "en",
+    age: str = "",
+    city: str = "",
+    hobby: str = "",
+    relationship: str = "",
+) -> str:
+    """~165s EDM v7 — commercial ACT 1/2/3 structure, no countdown or ad-libs."""
+    opening = _opening_v7_birthday_singalong(name)
+    build = (
+        "[Build - Drum Riser]\n"
+        "Immediately after the final 'Happy birthday to you', short drum riser only.\n"
+        "Instrumental. No vocals. No ad-libs. No spoken words."
+    )
+    drop = (
+        "[ACT 2 - Festival Drop]\n"
+        "Huge emotional festival EDM drop. Big supersaws. Wide stereo synths. Punchy kick.\n"
+        "Powerful bass. Bright uplifting energy. Tomorrowland commercial dance-pop feel.\n"
+        "Instrumental burst. From here onward: entirely original melody."
+    )
+    verse2_tag = (
+        "[ACT 3 - Verse 2 - Original Birthday Song]\n"
+        "Entirely original melody. Do NOT reuse Happy Birthday to You tune.\n"
+        "Festival dance-pop vocal. Celebrating the birthday."
+    )
+    verse3_tag = (
+        "[ACT 3 - Verse 3 - Original Birthday Song]\n"
+        "New original melody. Do NOT return to traditional birthday tune."
+    )
+    verse4_tag = (
+        "[ACT 3 - Verse 4 - Original Birthday Song]\n"
+        "New original melody. Peak party energy before final chorus."
+    )
+    chorus_tag = (
+        "[ACT 3 - Chorus - Original Festival Hook]\n"
+        "Catchy original festival melody. Energetic synths. Easy singalong for family.\n"
+        "Do NOT use Happy Birthday to You tune."
+    )
+    if language == "hi":
+        verse2 = """तुम्हारे सपने सच हों
+हर दिन नया उजियाला लाए
+आज तुम्हारे दिल में हँसी हो
+खुशियाँ तुम्हारे संग रहें"""
+        chorus = """गाओ मिलकर, जश्न मनाओ
+यह है तुम्हारा खास दिन
+परिवार और दोस्त इकट्ठे
+खुशियाँ बाँटते हैं"""
+        verse3 = """खुशियाँ और प्यार मिले
+हर पल मुस्कान भरे
+भाग्य तुम्हारे संग चले
+हर दुआ पूरी हो"""
+        verse4 = """संगीत तुम्हें ऊँचा उठाए
+चमकें सितारे आसमान में
+एक ख्वाहिश करो और मनाओ
+सब मिलकर जयकार करें"""
+        outro = _outro_variant_hi_for_name(name)
+    else:
+        verse2 = """May your dreams all come true
+May your days be bright and new
+May laughter fill your heart today
+And happiness stay with you"""
+        chorus = """Celebrate and sing along
+This is your special day
+Friends and family gathered here
+To cheer and celebrate"""
+        verse3 = """Wishing joy and wishing love
+Wishing smiles the whole year through
+May good fortune walk beside you
+And every wish come through"""
+        verse4 = """Let the music lift you high
+See the sparks fly to the sky
+Make a wish and blow them out
+Hear the whole crowd cheer and shout"""
+        outro = _outro_variant_for_name(name)
+
+    template = f"""{opening}
+
+{build}
+
+{drop}
+
+{verse2_tag}
+{verse2}
+
+{chorus_tag}
+{chorus}
+
+{verse3_tag}
+{verse3}
+
+{chorus_tag}
+{chorus}
+
+{verse4_tag}
+{verse4}
+
+{chorus_tag}
+{chorus}
+
+[Ending - Emotional Final Chorus]
+Layered vocals. Harmonies. EDM elements. Original festival melody only.
+End on a strong uplifting major chord with festival energy.
+{chorus_tag}
+{chorus}
+
 {outro}
 
 [End]"""

@@ -25,7 +25,7 @@ STEREO_CORR_FAIL = 0.995
 
 # ACE-Step exports are often brick-limited (~3 LU); fail only on extreme cases.
 LRA_WARN = 3.5
-LRA_FAIL = 2.0
+LRA_FAIL = 1.0
 
 ANALYSIS_SR = 16000
 MAX_ANALYSIS_SEC = 180.0

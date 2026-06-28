@@ -1,0 +1,81 @@
+name,language,country,gender,pronunciation,bpm,genre_variant,seed,enabled,locked,slug
+Aarav,en,India,boy,AA-ruhv,129,celebratevibes_v2,450285382,true,true,aarav-in-birthday-edm-party
+Arjun,en,India,boy,AR-jun,128,celebratevibes_v2,2955776651,true,false,arjun-in-birthday-edm-party
+Vivaan,en,India,boy,vih-VAAN,129,celebratevibes_v2,196496598,true,false,vivaan-in-birthday-edm-party
+Aditya,en,India,boy,aa-DIT-ya,124,celebratevibes_v2,694548430,true,false,aditya-in-birthday-edm-party
+Krishna,en,India,boy,KRISH-na,123,celebratevibes_v2,255266912,true,false,krishna-in-birthday-edm-party
+Rohan,en,India,boy,ROH-hun,125,celebratevibes_v2,1477768119,true,false,rohan-in-birthday-edm-party
+Rahul,en,India,boy,RAA-hool,124,celebratevibes_v2,940257901,true,false,rahul-in-birthday-edm-party
+Karan,en,India,boy,KUH-run,127,celebratevibes_v2,3299495768,true,false,karan-in-birthday-edm-party
+Vikram,en,India,boy,VIK-rum,125,celebratevibes_v2,3905718950,true,false,vikram-in-birthday-edm-party
+Aman,en,India,boy,UH-mun,131,celebratevibes_v2,3420851908,true,false,aman-in-birthday-edm-party
+Priya,en,India,girl,PREE-ya,122,celebratevibes_v2,291619842,true,false,priya-in-birthday-edm-party
+Ananya,en,India,girl,uh-NUN-ya,123,celebratevibes_v2,3002272437,true,false,ananya-in-birthday-edm-party
+Aanya,en,India,girl,AAN-ya,129,celebratevibes_v2,130192572,true,false,aanya-in-birthday-edm-party
+Diya,en,India,girl,DEE-ya,127,celebratevibes_v2,2922757034,true,false,diya-in-birthday-edm-party
+Kavya,en,India,girl,KAAV-ya,127,celebratevibes_v2,3477564004,true,false,kavya-in-birthday-edm-party
+Neha,en,India,girl,NAY-ha,128,celebratevibes_v2,3639342490,true,false,neha-in-birthday-edm-party
+Pooja,en,India,girl,POO-jaa,123,celebratevibes_v2,1414558240,true,false,pooja-in-birthday-edm-party
+Sneha,en,India,girl,SNAY-ha,131,celebratevibes_v2,336428161,true,false,sneha-in-birthday-edm-party
+Riya,en,India,girl,REE-ya,130,celebratevibes_v2,417842024,true,false,riya-in-birthday-edm-party
+Aditi,en,India,girl,uh-DIT-ee,131,celebratevibes_v2,2145813508,true,false,aditi-in-birthday-edm-party
+Liam,en,United States,boy,LEE-um,124,celebratevibes_v2,2455597284,true,false,liam-us-birthday-edm-party
+Noah,en,United States,boy,NOH-uh,125,celebratevibes_v2,3425907065,true,false,noah-us-birthday-edm-party
+James,en,United States,boy,JAYMZ,131,celebratevibes_v2,578185681,true,false,james-us-birthday-edm-party
+William,en,United States,boy,WILL-yum,126,celebratevibes_v2,1047568017,true,false,william-us-birthday-edm-party
+Benjamin,en,United States,boy,BEN-juh-min,129,celebratevibes_v2,2834830885,true,false,benjamin-us-birthday-edm-party
+Lucas,en,United States,boy,LOO-kus,128,celebratevibes_v2,1547673391,true,false,lucas-us-birthday-edm-party
+Henry,en,United States,boy,HEN-ree,127,celebratevibes_v2,803494319,true,false,henry-us-birthday-edm-party
+Alexander,en,United States,boy,AL-ig-ZAN-der,127,celebratevibes_v2,332353649,true,false,alexander-us-birthday-edm-party
+Ethan,en,United States,boy,EE-thun,130,celebratevibes_v2,106964251,true,false,ethan-us-birthday-edm-party
+Michael,en,United States,boy,MY-kul,123,celebratevibes_v2,3944007092,true,false,michael-us-birthday-edm-party
+Olivia,en,United States,girl,oh-LIV-ee-uh,130,celebratevibes_v2,2952576746,true,false,olivia-us-birthday-edm-party
+Emma,en,United States,girl,EM-uh,130,celebratevibes_v2,3412038964,true,false,emma-us-birthday-edm-party
+Charlotte,en,United States,girl,SHAR-lut,126,celebratevibes_v2,2791822250,true,false,charlotte-us-birthday-edm-party
+Amelia,en,United States,girl,uh-MEE-lee-uh,129,celebratevibes_v2,3958443660,true,false,amelia-us-birthday-edm-party
+Sophia,en,United States,girl,soh-FEE-uh,125,celebratevibes_v2,3087129867,true,false,sophia-us-birthday-edm-party
+Isabella,en,United States,girl,iz-uh-BEL-uh,127,celebratevibes_v2,2412932644,true,false,isabella-us-birthday-edm-party
+Ava,en,United States,girl,AY-vuh,131,celebratevibes_v2,2645734240,true,false,ava-us-birthday-edm-party
+Mia,en,United States,girl,MEE-uh,129,celebratevibes_v2,3648143417,true,false,mia-us-birthday-edm-party
+Evelyn,en,United States,girl,EV-uh-lin,129,celebratevibes_v2,3134056783,true,false,evelyn-us-birthday-edm-party
+Harper,en,United States,girl,HAR-per,123,celebratevibes_v2,4260861363,true,false,harper-us-birthday-edm-party
+Alexander,ru,Russia,boy,al-ek-SAN-dr,129,celebratevibes_v2,3464610365,true,false,alexander-ru-birthday-edm-party
+Dmitry,ru,Russia,boy,DMEE-tree,131,celebratevibes_v2,3215474730,true,false,dmitry-ru-birthday-edm-party
+Ivan,ru,Russia,boy,ee-VAHN,122,celebratevibes_v2,1606527017,true,false,ivan-ru-birthday-edm-party
+Maxim,ru,Russia,boy,mak-SEEM,130,celebratevibes_v2,800317209,true,false,maxim-ru-birthday-edm-party
+Mikhail,ru,Russia,boy,mee-kha-EEL,123,celebratevibes_v2,4129741558,true,false,mikhail-ru-birthday-edm-party
+Nikita,ru,Russia,boy,nee-KEE-ta,130,celebratevibes_v2,768736845,true,false,nikita-ru-birthday-edm-party
+Sergey,ru,Russia,boy,ser-GAY,128,celebratevibes_v2,827355240,true,false,sergey-ru-birthday-edm-party
+Vladimir,ru,Russia,boy,vlah-DEE-meer,127,celebratevibes_v2,125492927,true,false,vladimir-ru-birthday-edm-party
+Andrey,ru,Russia,boy,an-DRAY,127,celebratevibes_v2,1671526289,true,false,andrey-ru-birthday-edm-party
+Pavel,ru,Russia,boy,PAH-vyel,126,celebratevibes_v2,2022694586,true,false,pavel-ru-birthday-edm-party
+Anastasia,ru,Russia,girl,ah-nah-stah-SEE-ya,127,celebratevibes_v2,3505234471,true,false,anastasia-ru-birthday-edm-party
+Maria,ru,Russia,girl,mah-REE-ya,129,celebratevibes_v2,865212028,true,false,maria-ru-birthday-edm-party
+Anna,ru,Russia,girl,AHN-na,129,celebratevibes_v2,2670157551,true,false,anna-ru-birthday-edm-party
+Ekaterina,ru,Russia,girl,ye-ka-te-REE-na,129,celebratevibes_v2,446180218,true,false,ekaterina-ru-birthday-edm-party
+Sofia,ru,Russia,girl,so-FEE-ya,130,celebratevibes_v2,1337093016,true,false,sofia-ru-birthday-edm-party
+Daria,ru,Russia,girl,DAR-ya,125,celebratevibes_v2,950155405,true,false,daria-ru-birthday-edm-party
+Olga,ru,Russia,girl,OHL-ga,129,celebratevibes_v2,3516819195,true,false,olga-ru-birthday-edm-party
+Elena,ru,Russia,girl,ye-LEN-a,129,celebratevibes_v2,2680194665,true,false,elena-ru-birthday-edm-party
+Polina,ru,Russia,girl,pa-LEE-na,122,celebratevibes_v2,3006550643,true,false,polina-ru-birthday-edm-party
+Alina,ru,Russia,girl,ah-LEE-na,126,celebratevibes_v2,2604320006,true,false,alina-ru-birthday-edm-party
+Wei,zh,China,boy,WAY,130,celebratevibes_v2,2306277626,true,false,wei-cn-birthday-edm-party
+Jun,zh,China,boy,JWEEN,131,celebratevibes_v2,3385832138,true,false,jun-cn-birthday-edm-party
+Hao,zh,China,boy,HOW,122,celebratevibes_v2,262309150,true,false,hao-cn-birthday-edm-party
+Ming,zh,China,boy,MING,129,celebratevibes_v2,1122459574,true,false,ming-cn-birthday-edm-party
+Lei,zh,China,boy,LAY,123,celebratevibes_v2,2577677707,true,false,lei-cn-birthday-edm-party
+Jian,zh,China,boy,JEE-en,125,celebratevibes_v2,1716841220,true,false,jian-cn-birthday-edm-party
+Tao,zh,China,boy,TOW,122,celebratevibes_v2,79612690,true,false,tao-cn-birthday-edm-party
+Peng,zh,China,boy,PUNG,124,celebratevibes_v2,2924352919,true,false,peng-cn-birthday-edm-party
+Bo,zh,China,boy,BWOH,129,celebratevibes_v2,1226202765,true,false,bo-cn-birthday-edm-party
+Qiang,zh,China,boy,CHYANG,128,celebratevibes_v2,3706812249,true,false,qiang-cn-birthday-edm-party
+Li,zh,China,girl,LEE,128,celebratevibes_v2,2088162886,true,false,li-cn-birthday-edm-party
+Jing,zh,China,girl,JING,128,celebratevibes_v2,3633334046,true,false,jing-cn-birthday-edm-party
+Fang,zh,China,girl,FAHNG,122,celebratevibes_v2,466990367,true,false,fang-cn-birthday-edm-party
+Na,zh,China,girl,NAH,123,celebratevibes_v2,2149253270,true,false,na-cn-birthday-edm-party
+Yan,zh,China,girl,YEN,122,celebratevibes_v2,3103878222,true,false,yan-cn-birthday-edm-party
+Xia,zh,China,girl,SHYAH,123,celebratevibes_v2,3798302968,true,false,xia-cn-birthday-edm-party
+Ling,zh,China,girl,LING,128,celebratevibes_v2,3145401434,true,false,ling-cn-birthday-edm-party
+Mei,zh,China,girl,MAY,123,celebratevibes_v2,2581996372,true,false,mei-cn-birthday-edm-party
+Yu,zh,China,girl,YOO,124,celebratevibes_v2,2632077293,true,false,yu-cn-birthday-edm-party
+Xiu,zh,China,girl,SHYOH,122,celebratevibes_v2,4162802971,true,false,xiu-cn-birthday-edm-party

@@ -1,5 +1,6 @@
 # Job state and intermediates
-state/
+state/*
+!state/release_status.csv
 logs/
 *.verify.json
 *_raw.mp3

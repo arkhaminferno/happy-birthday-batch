@@ -11,8 +11,27 @@ import zlib
 from dataclasses import asdict, dataclass
 
 BASE_TEMPLATE_SEED = 2_664_429_003
-DEFAULT_GENRE = "birthday_edm_party_v6_restore"
+DEFAULT_GENRE = "celebratevibes_v2"
 DEFAULT_BPM = 128
+
+
+@dataclass(frozen=True)
+class SongVariation:
+    """Per-song generation knobs to avoid uniform batch fingerprints."""
+
+    bpm: int
+    lyrics_variant: int
+    body_crossfade_sec: float
+    opening_trim_hint_sec: float
+
+    def to_dict(self) -> dict[str, float | int]:
+        """Serialize for JSON sidecars."""
+        return {
+            "bpm": self.bpm,
+            "lyrics_variant": self.lyrics_variant,
+            "body_crossfade_sec": self.body_crossfade_sec,
+            "opening_trim_hint_sec": self.opening_trim_hint_sec,
+        }
 
 
 @dataclass(frozen=True)
@@ -50,12 +69,38 @@ def derive_seed(name: str, base_seed: int = BASE_TEMPLATE_SEED) -> str:
     return str(value)
 
 
-def slug_for_name(name: str) -> str:
-    """Build output slug: ``priya-birthday-edm-party``."""
+def slug_for_name(name: str, country: str = "") -> str:
+    """Build output slug, optionally prefixed with a country code."""
     ascii_name = name.strip().lower().replace(" ", "-")
     safe = "".join(ch if ch.isalnum() or ch == "-" else "" for ch in ascii_name)
     safe = safe.strip("-") or "birthday"
+    country_codes = {
+        "india": "in",
+        "united states": "us",
+        "usa": "us",
+        "russia": "ru",
+        "china": "cn",
+    }
+    code = country_codes.get(country.strip().lower(), "")
+    if code:
+        return f"{safe}-{code}-birthday-edm-party"
     return f"{safe}-birthday-edm-party"
+
+
+def song_variation_for(name: str, country: str = "") -> SongVariation:
+    """Compute unique BPM, lyrics, and merge variation per name."""
+    digest = _digest(f"{country}:{name}".strip().lower())
+    slots = [digest[index] / 255.0 for index in range(4)]
+    bpm = 122 + int(slots[0] * 10)  # 122–132
+    lyrics_variant = int(slots[1] * 4) % 4
+    body_crossfade_sec = round(0.8 + slots[2] * 0.8, 2)  # 0.8–1.6
+    opening_trim_hint_sec = round(12.5 + slots[3] * 4.0, 2)  # 12.5–16.5
+    return SongVariation(
+        bpm=bpm,
+        lyrics_variant=lyrics_variant,
+        body_crossfade_sec=body_crossfade_sec,
+        opening_trim_hint_sec=opening_trim_hint_sec,
+    )
 
 
 def master_variation_for(name: str) -> MasterVariation:

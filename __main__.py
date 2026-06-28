@@ -37,6 +37,18 @@ def main() -> None:
         sys.argv = [sys.argv[0], *sys.argv[2:]]
         mass_batch_main()
         return
+    if len(sys.argv) > 1 and sys.argv[1] == "world-batch":
+        from batch_birthday.world_batch import main as world_batch_main
+
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        world_batch_main()
+        return
+    if len(sys.argv) > 1 and sys.argv[1] == "release-status":
+        from batch_birthday.release_status_cli import main as release_status_main
+
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        release_status_main()
+        return
     run_main()
 
 
