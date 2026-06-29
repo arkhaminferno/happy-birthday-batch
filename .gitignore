@@ -18,6 +18,7 @@ templates/audio/.DS_Store
 
 # Other batch outputs (regenerated per name)
 output/**/*
+export/
 !output/sarah-birthday-edm-party/
 output/sarah-birthday-edm-party/*
 !output/sarah-birthday-edm-party/sarah-birthday-edm-party.mp3
