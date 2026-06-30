@@ -849,6 +849,71 @@ def build_full_song_lyrics(
     return f"{intro}\n\n{verse1}\n\n{build}\n\n{drop}\n\n{body}"
 
 
+def _classic_to_you_four_lines() -> str:
+    """Traditional Happy Birthday melody with no personal name."""
+    return """Happy birthday to you
+Happy birthday to you
+Happy birthday to you
+Happy birthday to you"""
+
+
+def build_generic_body_lyrics(*, variant: int = 0) -> str:
+    """EDM party body with no personal name — for channel intro / universal uploads."""
+    variant = variant % 2
+    if variant == 0:
+        verse2 = """Everybody jump, the lights go wild
+Tonight you're the star so bright
+Candles glow and friends all smile
+We dance until the morning light"""
+        chorus = """Happy birthday to you, put your hands up high
+Happy birthday to you, touch the sky
+Hey! Hey! Happy birthday to you
+Let's party all night"""
+        verse3 = """Make a wish and blow the flame
+Hear the crowd call out your name
+Laughing, singing, hearts on fire
+This is your moment, take it higher"""
+        verse4 = """One more time now, all together
+Louder, louder, feel the beat
+We celebrate this special day
+Dancing down the city street"""
+    else:
+        verse2 = """DJ drop the beat, the crowd goes wild
+Neon lights and happy smiles
+We party till the morning light
+Celebrate with joy tonight"""
+        chorus = """Happy birthday to you, hands up to the sky
+Happy birthday to you, feel the vibe
+Oh oh, happy birthday to you
+Party all night"""
+        verse3 = """Blow the candles, make it count
+Every voice joins in the sound
+Friends around from left to right
+Sparklers glowing in the night"""
+        verse4 = """Turn it up and sing along
+Birthday wishes in this song
+Clap your hands and feel the groove
+Here's a day we all can prove"""
+    return (
+        f"[Verse 2]\n{verse2}\n\n[Chorus]\n{chorus}\n\n"
+        f"[Verse 3]\n{verse3}\n\n[Verse 4]\n{verse4}\n\n"
+        f"[Final Chorus]\n{chorus}\nHappy birthday to you!"
+    )
+
+
+def build_generic_full_song_lyrics(*, variant: int = 0) -> str:
+    """Single-pass EDM song: Verse 1 HB first, then drop, then party body.
+
+    Lyrics contain only singable lines and standard section tags — timing and
+    performance notes belong in the ACE-Step caption/instruction fields only.
+    """
+    classic = _classic_to_you_four_lines()
+    body = build_generic_body_lyrics(variant=variant)
+    verse1 = f"[Verse 1]\n{classic}"
+    drop = "[Drop]\n[Instrumental]"
+    return f"{verse1}\n\n{drop}\n\n{body}"
+
+
 def build_body_lyrics(name: str, language: str = "en", *, variant: int = 0) -> str:
     """Festival EDM party body — English hooks with rotating templates."""
     clean = name.strip()

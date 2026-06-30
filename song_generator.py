@@ -21,6 +21,26 @@ from batch_birthday.lyrics_builder import (
     CELEBRATEVIBES_V2_FULL_CAPTION,
     CELEBRATEVIBES_V2_FULL_INSTRUCTION,
     build_full_song_lyrics,
+    build_generic_full_song_lyrics,
+)
+
+GENERIC_SONG_CAPTION = (
+    "Professional commercial 128 BPM festival EDM birthday anthem. "
+    "Four-on-the-floor kick from beat one. Vocals MUST enter within 6 seconds — "
+    "first vocal is a natural human Happy Birthday to You singalong over the dance "
+    "beat, NOT an auto-tuned EDM pop hook. Warm female lead, crowd claps on 2 and 4. "
+    "Then short drum riser and festival drop into party lyrics. "
+    "NOT slow intro, NOT waltz, NOT instrumental opening longer than 3 seconds"
+)
+
+GENERIC_SONG_INSTRUCTION = (
+    "CRITICAL TIMING: First sung vocals within 6 seconds of start. "
+    "NO instrumental intro longer than 3 seconds. NO 40-second delay before vocals. "
+    "Open with steady EDM beat, then immediately sing traditional Happy Birthday "
+    "to You in a natural human party singalong style — simple clean melody, no "
+    "improvisation, no melisma, no person's name. After one complete verse, short "
+    "drum riser then festival drop into original party lyrics. Do not sing any "
+    "person's name — only 'happy birthday to you' and generic celebration lyrics."
 )
 from batch_birthday.melody_generator import DEFAULT_BPM
 from batch_birthday.name_pronunciation import (
@@ -174,4 +194,30 @@ def generate_body(
         duration_sec=duration_sec,
         seed=seed,
         lyrics_variant=lyrics_variant,
+    )
+
+
+def generate_generic_full_song(
+    row: Any,
+    *,
+    paths: PipelinePaths,
+    api_base: str,
+    api_key: str,
+    duration_sec: int = FULL_SONG_DURATION_SEC,
+    seed: int | None = None,
+    lyrics_variant: int = 0,
+) -> dict[str, Any]:
+    """Generate a universal Happy Birthday to You EDM song (no personal name)."""
+    lyrics = build_generic_full_song_lyrics(variant=lyrics_variant)
+    paths.body_lyrics.write_text(lyrics + "\n", encoding="utf-8")
+    payload = build_full_song_payload(row, lyrics=lyrics, duration_sec=duration_sec, seed=seed)
+    payload["instruction"] = GENERIC_SONG_INSTRUCTION
+    payload["prompt"] = GENERIC_SONG_CAPTION
+    payload["vocal_language"] = "en"
+    return generate_to_file(
+        payload,
+        api_base=api_base,
+        api_key=api_key,
+        out_path=paths.body_mp3,
+        label="generic-full-song",
     )

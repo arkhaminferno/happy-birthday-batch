@@ -49,6 +49,18 @@ def main() -> None:
         sys.argv = [sys.argv[0], *sys.argv[2:]]
         release_status_main()
         return
+    if len(sys.argv) > 1 and sys.argv[1] == "ae-batch":
+        from batch_birthday.ae_batch_cli import main as ae_batch_main
+
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        ae_batch_main()
+        return
+    if len(sys.argv) > 1 and sys.argv[1] == "generic-intro":
+        from batch_birthday.generic_intro import main as generic_intro_main
+
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        generic_intro_main()
+        return
     run_main()
 
 

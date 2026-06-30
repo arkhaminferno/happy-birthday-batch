@@ -1,6 +1,76 @@
 # After Effects → YouTube workflow (CelebrateVibes)
 
-Manual video workflow: import MP3 in AE, export MP4, upload, track in CSV.
+Manual or automated video workflow from the editor template + batch MP3s.
+
+## Automated batch (recommended)
+
+Template path:
+`adobe after effect template/Adobe after effect files/Happy birthday.aep`
+
+Comps used:
+- `EDIT HERE` — name text layer `RAJESH` → personalized name
+- `Main 2Min+` — final 1080p YouTube render comp
+
+### Commands
+
+```bash
+# 1) Inspect template comps/layers (run once after template changes)
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday ae-batch --inspect
+
+# 2) Dry-run one job (writes JSON only)
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday ae-batch --dry-run --slug aarav-in-birthday-edm-party
+
+# 3) Test one full render (close AE GUI first)
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday ae-batch --slug aarav-in-birthday-edm-party --limit 1
+
+# 4) Batch all songs missing video
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday ae-batch --limit 5
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday ae-batch
+```
+
+Each render:
+1. Opens template via ExtendScript (`ae_scripts/render_job.jsx`)
+2. Sets name, subtle hue/sat + speed variation (excludes Rajesh/Cake layers)
+3. Imports MP3 into `Main 2Min+`, matches comp length to audio
+4. Saves per-slug project under `batch_birthday/ae_work/projects/`
+5. Renders with `aerender` → `output/{slug}/{slug}-youtube.mp4`
+6. Embeds YouTube title/artist metadata via ffmpeg
+
+Requires **After Effects 2025** installed (Mac paths auto-detected).
+
+### Headless mode (no Home screen)
+
+By default scripts run with **`-noui`** (no visible UI). The **MP4 export** always uses
+**`aerender`**, which is fully headless.
+
+```bash
+# default: -noui (no Home screen)
+PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday ae-batch --smoke
+
+# alternative: JXA background scripting (AE 24+)
+AE_UI_MODE=jxa PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday ae-batch --smoke
+
+# last resort: visible UI
+AE_UI_MODE=gui PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday ae-batch --smoke
+```
+
+**Mac limitation:** Adobe does not provide `AfterFX.com` on Mac (unlike Windows). Editing the
+`.aep` (name, colors, audio) still requires the AE scripting engine briefly. Rendering is
+100% headless via `aerender`.
+
+### If AE opens to the Home screen and nothing happens
+
+1. **Quit After Effects fully** (`Cmd+Q`) — do not just close the window.
+2. Run the smoke test first:
+   ```bash
+   PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday ae-batch --smoke
+   ```
+   AE should flash open, then close by itself. If `SMOKE TEST PASSED` prints, scripting works.
+3. Then inspect, then one render.
+
+Logs are written to `batch_birthday/ae_work/script_log.txt` and `script_status.txt`.
+
+## Manual workflow (fallback)
 
 ## One folder per name
 
