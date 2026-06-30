@@ -1,26 +1,41 @@
-# Happy Birthday Batch Template (ACE-Step 1.5)
+# Happy Birthday Batch (CelebrateVibes)
 
 CSV-driven pipeline to generate **Happy Birthday [Name]** EDM party songs via the
-local ACE-Step API, harden them for distributor upload, and verify with local
-AI-music forensic checks.
+local ACE-Step API, render After Effects YouTube videos, and track uploads.
+
+## Cross-platform setup (macOS + Windows)
+
+**→ See [SETUP.md](SETUP.md)** for full install on Apple Silicon Mac or Windows 11
+(NVIDIA CUDA, e.g. RTX 5070).
+
+Quick start after setup:
+
+```bash
+./scripts/batch.sh doctor
+./scripts/batch.sh init-api
+./scripts/batch.sh generic-intro --force --video
+./scripts/batch.sh ae-batch --slug rahul-in-birthday-edm-party --limit 1
+```
+
+Windows: use `scripts\batch.cmd` instead of `scripts/batch.sh`.
 
 ## Prerequisites
 
-- [ACE-Step 1.5](https://github.com/ace-step/ACE-Step-1.5) checked out locally
-- API server running: `./start_api_server_macos.sh` (LLM enabled for vocals)
-- `PYTHONPATH` set to ACE-Step repo root
+- [ACE-Step 1.5](https://github.com/ace-step/ACE-Step-1.5) checked out locally (audio)
+- After Effects 2024/2025 (video)
+- ffmpeg on PATH
+- API server running (see `scripts/start_acestep_api.sh` or `.bat`)
 
-## Quick start
+## Legacy Mac layout (inside ACE-Step-1.5)
 
 ```bash
 cd /path/to/ACE-Step-1.5
 PYTHONPATH="$PWD" ./start_api_server_macos.sh   # separate terminal
 
-# 1. Edit names.csv — set name, language, slug, genre_variant, seed
-# 2. Generate RAW only (review before humanize/upload)
+# Generate songs
 PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday --force --limit 1
 
-# 3. After you approve the raw MP3, deliver (master + humanize + verify)
+# Deliver (master + humanize + verify)
 PYTHONPATH="$PWD" python_embeded/bin/python3.11 -m batch_birthday deliver \
   batch_birthday/output/<slug>/<slug>_raw.mp3
 ```

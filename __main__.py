@@ -61,6 +61,16 @@ def main() -> None:
         sys.argv = [sys.argv[0], *sys.argv[2:]]
         generic_intro_main()
         return
+    if len(sys.argv) > 1 and sys.argv[1] == "doctor":
+        from batch_birthday.acestep_env import run_doctor
+
+        raise SystemExit(run_doctor())
+    if len(sys.argv) > 1 and sys.argv[1] == "init-api":
+        from batch_birthday.acestep_env import init_llm_models
+
+        data = init_llm_models()
+        print(f"LLM ready: {data.get('llm_initialized')}")
+        return
     run_main()
 
 

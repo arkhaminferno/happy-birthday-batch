@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "happy-birthday-batch"
+version = "1.0.0"
+description = "CelebrateVibes birthday song batch pipeline (ACE-Step + After Effects)"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = { text = "MIT" }
+dependencies = [
+    "loguru>=0.7.3",
+    "numpy>=1.26",
+    "requests>=2.31",
+    "scipy>=1.11",
+]
+
+[project.scripts]
+celebratevibes = "cli_entry:main"
+cvbatch = "cli_entry:main"
+
+[tool.setuptools]
+py-modules = ["cli_entry"]
+packages = ["batch_birthday"]
+package-dir = { "batch_birthday" = "." }
+
+[tool.setuptools.package-data]
+batch_birthday = [
+    "ae_template/**/*",
+    "ae_scripts/**/*",
+    "input/*",
+    "lyrics/*",
+    "state/release_status.csv",
+]
