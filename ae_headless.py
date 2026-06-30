@@ -1,13 +1,14 @@
-"""Headless After Effects launch helpers for macOS."""
+"""Headless After Effects launch helpers for macOS and Windows."""
 
 from __future__ import annotations
 
 import os
 import subprocess
+import sys
 import time
 from pathlib import Path
 
-from batch_birthday.ae_config import resolve_ae_app_bundle
+from batch_birthday.ae_config import resolve_ae_app_bundle, resolve_afterfx_com
 
 # AppleScript DoScriptFile is the most reliable launcher on AE 2025 Mac.
 AE_UI_MODE = os.environ.get("AE_UI_MODE", "applescript").strip().lower()
@@ -59,6 +60,22 @@ def ensure_ae_ready() -> None:
     """Ensure AE is idle before launching the next JSX script."""
     quit_ae_mac()
     time.sleep(2)
+
+
+def quit_ae(*, wait_sec: int = 30) -> None:
+    """Quit After Effects and wait until the process exits."""
+    if sys.platform == "win32":
+        quit_ae_windows(wait_sec=wait_sec)
+        return
+    quit_ae_mac(wait_sec=wait_sec)
+
+
+def launch_jsx(script_path: Path) -> None:
+    """Launch JSX on the current platform and block until the script finishes."""
+    if sys.platform == "win32":
+        launch_jsx_windows(script_path)
+        return
+    launch_jsx_mac(script_path)
 
 
 def launch_jsx_mac(script_path: Path) -> None:
@@ -150,3 +167,28 @@ def _launch_gui(script: str) -> None:
     cmd = ["open", "-g", "-a", str(app_bundle), "--args", "-r", script]
     print("Launching AE with UI (fallback)...")
     subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def quit_ae_windows(*, wait_sec: int = 30) -> None:
+    """Quit After Effects on Windows."""
+    subprocess.run(
+        ["taskkill", "/IM", "AfterFX.exe", "/F"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    time.sleep(min(wait_sec, 5))
+
+
+def launch_jsx_windows(script_path: Path) -> None:
+    """Run JSX via AfterFX.com -r on Windows."""
+    quit_ae_windows()
+    time.sleep(2)
+    afterfx = resolve_afterfx_com()
+    script = str(script_path.resolve())
+    cmd = [str(afterfx), "-r", script]
+    print(f"Launching AE via AfterFX.com ({afterfx.name})...")
+    result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    if result.returncode != 0:
+        detail = (result.stderr or result.stdout or "AfterFX.com failed").strip()
+        raise RuntimeError(detail)

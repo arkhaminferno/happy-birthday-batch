@@ -4,8 +4,8 @@ Manual or automated video workflow from the editor template + batch MP3s.
 
 ## Automated batch (recommended)
 
-Template path:
-`adobe after effect template/Adobe after effect files/Happy birthday.aep`
+Template path (inside repo):
+`batch_birthday/ae_template/Happy birthday.aep`
 
 Comps used:
 - `EDIT HERE` — name text layer `RAJESH` → personalized name
@@ -36,7 +36,20 @@ Each render:
 5. Renders with `aerender` → `output/{slug}/{slug}-youtube.mp4`
 6. Embeds YouTube title/artist metadata via ffmpeg
 
-Requires **After Effects 2025** installed (Mac paths auto-detected).
+Requires **After Effects 2024/2025** (Mac or Windows paths auto-detected).
+
+### Windows
+
+Clone this repo, install AE 2024/2025, then from the repo root:
+
+```bat
+set PYTHONPATH=%CD%
+python -m batch_birthday ae-batch --smoke
+python -m batch_birthday ae-batch --slug rahul-in-birthday-edm-party --limit 1
+```
+
+JSX prep uses `AfterFX.com -r`; MP4 export uses `aerender.exe`. Override paths with
+`AFTERFX_COM_PATH` or `AERENDER_PATH` if needed.
 
 ### Headless mode (no Home screen)
 

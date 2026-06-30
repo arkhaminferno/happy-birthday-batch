@@ -8,9 +8,8 @@ from pathlib import Path
 
 from batch_birthday.orchestrator import BATCH_ROOT
 
-REPO_ROOT = BATCH_ROOT.parent
-
-TEMPLATE_ROOT = REPO_ROOT / "adobe after effect template" / "Adobe after effect files"
+# Template ships inside this repo so a lone clone works on Mac or Windows.
+TEMPLATE_ROOT = BATCH_ROOT / "ae_template"
 TEMPLATE_AEP = TEMPLATE_ROOT / "Happy birthday.aep"
 
 # Names discovered from Happy birthday.aep (not the old KT doc labels).
@@ -34,6 +33,14 @@ MAC_AERENDER_CANDIDATES = (
     "/Applications/Adobe After Effects 2025/aerender",
     "/Applications/Adobe After Effects 2024/aerender",
 )
+WIN_AERENDER_CANDIDATES = (
+    r"C:\Program Files\Adobe\Adobe After Effects 2025\Support Files\aerender.exe",
+    r"C:\Program Files\Adobe\Adobe After Effects 2024\Support Files\aerender.exe",
+)
+WIN_AFTERFX_COM_CANDIDATES = (
+    r"C:\Program Files\Adobe\Adobe After Effects 2025\Support Files\AfterFX.com",
+    r"C:\Program Files\Adobe\Adobe After Effects 2024\Support Files\AfterFX.com",
+)
 
 
 def resolve_ae_app_bundle() -> Path:
@@ -49,7 +56,12 @@ def resolve_ae_app_bundle() -> Path:
 
 def resolve_aerender() -> Path:
     """Return aerender for headless comp export."""
-    for candidate in MAC_AERENDER_CANDIDATES:
+    import sys
+
+    candidates = (
+        WIN_AERENDER_CANDIDATES if sys.platform == "win32" else MAC_AERENDER_CANDIDATES
+    )
+    for candidate in candidates:
         path = Path(candidate)
         if path.is_file():
             return path
@@ -61,4 +73,18 @@ def resolve_aerender() -> Path:
         return Path(override)
     raise FileNotFoundError(
         "aerender not found. Install After Effects or set AERENDER_PATH."
+    )
+
+
+def resolve_afterfx_com() -> Path:
+    """Return AfterFX.com on Windows for JSX scripting."""
+    for candidate in WIN_AFTERFX_COM_CANDIDATES:
+        path = Path(candidate)
+        if path.is_file():
+            return path
+    override = os.environ.get("AFTERFX_COM_PATH", "").strip()
+    if override and Path(override).is_file():
+        return Path(override)
+    raise FileNotFoundError(
+        "AfterFX.com not found. Install After Effects or set AFTERFX_COM_PATH."
     )

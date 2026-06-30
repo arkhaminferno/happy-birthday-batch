@@ -8,7 +8,7 @@ import time
 from pathlib import Path
 
 from batch_birthday.ae_config import AE_WORK_ROOT, resolve_aerender
-from batch_birthday.ae_headless import launch_jsx_mac, quit_ae_mac
+from batch_birthday.ae_headless import launch_jsx, quit_ae
 from batch_birthday.ae_launcher import ACTIVE_SCRIPT, SMOKE_PROJECT, write_active_script
 from batch_birthday.ae_render_job import RenderJob, write_render_job
 
@@ -48,7 +48,7 @@ def run_active_script(
     print("Launching After Effects script...")
     print(f"  mode: {os.environ.get('AE_UI_MODE', 'applescript')}")
     print(f"  script: {ACTIVE_SCRIPT}")
-    launch_jsx_mac(ACTIVE_SCRIPT)
+    launch_jsx(ACTIVE_SCRIPT)
     if expect_project is not None:
         _wait_for_project(expect_project, timeout_sec=timeout_sec)
         print(f"Project saved: {expect_project}")
@@ -122,9 +122,9 @@ def prepare_project(job: RenderJob) -> Path:
 def render_job(job: RenderJob, *, cooldown_sec: int = 8) -> Path:
     """Full pipeline: JSX prep, aerender export, short cooldown."""
     prepare_project(job)
-    quit_ae_mac()
+    quit_ae()
     output = run_aerender(job)
-    quit_ae_mac()
+    quit_ae()
     if cooldown_sec > 0:
         time.sleep(cooldown_sec)
     return output
