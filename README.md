@@ -5,8 +5,8 @@ local ACE-Step API, render After Effects YouTube videos, and track uploads.
 
 ## Cross-platform setup (macOS + Windows)
 
-**→ See [SETUP.md](SETUP.md)** for full install on Apple Silicon Mac or Windows 11
-(NVIDIA CUDA, e.g. RTX 5070).
+**→ [HOW_TO_USE.md](HOW_TO_USE.md)** — daily commands (Mac + Windows scripts)  
+**→ [SETUP.md](SETUP.md)** — first-time install
 
 Quick start after setup:
 
